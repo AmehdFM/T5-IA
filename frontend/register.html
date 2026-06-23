@@ -113,6 +113,35 @@
     </div>
   </div>
 
+  <!-- Modal de Verificación de Cuenta -->
+  <div style="position: fixed; inset: 0; background: rgba(0, 31, 87, 0.8); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1.5rem; backdrop-filter: blur(4px);" id="verification-modal">
+    <div style="background: linear-gradient(180deg, #0055ff 0%, #002288 100%); border: 5px solid var(--cp-blue-sky); border-radius: 24px; max-width: 440px; width: 100%; padding: 2rem; text-align: center; color: white; box-shadow: 0 20px 40px rgba(0,0,0,0.5);" class="alert-dialog-box">
+      <div style="font-size: 3.5rem; margin-bottom: 15px;">✉️</div>
+      <h3 style="font-family: var(--font-title); font-size: 1.7rem; margin-bottom: 10px; text-shadow: 2px 2px 0 var(--cp-blue-dark);" class="alert-dialog-title">Verificación de Cuenta</h3>
+      <p style="font-size: 0.95rem; color: #cce0ff; margin-bottom: 20px; line-height: 1.4;">
+        Ingresa el código de verificación enviado al correo ingresado
+      </p>
+      
+      <div id="modal-alert-box" style="margin-bottom: 15px;"></div>
+
+      <div class="form-group" style="text-align: left; margin-bottom: 20px;">
+        <input
+          class="form-input"
+          type="text"
+          id="verification-code"
+          placeholder="Código de 6 dígitos"
+          style="text-align: center; font-size: 1.5rem; letter-spacing: 5px; font-weight: bold; width: 100%; border: 3px solid var(--cp-blue-sky); border-radius: 12px; padding: 10px;"
+          maxlength="6"
+        />
+      </div>
+
+      <div style="display: flex; gap: 10px;">
+        <button class="btn" id="btn-cancel-verify" style="flex: 1; background: #fff; color: #333; border: 2px solid #ccc; font-weight: bold; border-radius: 12px; padding: 10px; cursor: pointer;">Cancelar</button>
+        <button class="btn" id="btn-confirm-verify" style="flex: 2; background: linear-gradient(180deg, #00cc33 0%, #009922 100%); border: 3px solid #007711; color: white; box-shadow: 0 4px 0 #005500; font-weight: bold; border-radius: 12px; padding: 10px; cursor: pointer;">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
   <script src="js/register.js"></script>
 </body>
 </html>

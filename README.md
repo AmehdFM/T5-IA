@@ -65,8 +65,11 @@ El diseño visual está inspirado en la estética alegre y colorida del juego cl
 * **Propósito**: Permite a nuevos usuarios del hotel registrarse en la plataforma.
 * **Funcionalidad**:
   * Campos obligatorios: Nombre completo, Correo electrónico y Contraseña (mínimo 6 caracteres).
-  * Auto-verificación de la cuenta al registrarse para permitir el acceso directo.
-  * Envío de correo simulado en la consola del servidor backend con el token generado.
+  * Indicador visual de fortaleza de contraseña en tiempo real (Muy débil → Muy fuerte).
+  * **Paso de Verificación por Código (Simulado)**: Antes de crear la cuenta, el sistema realiza una validación de identidad. Tras completar el formulario correctamente, se despliega un **modal de verificación de cuenta** con el mensaje:
+    > *"Ingresa el código de verificación enviado al correo ingresado"*
+  * El usuario debe ingresar el **código por defecto `333777`** (código fijo de simulación, ya que el sistema no envía correos reales). Si el código es incorrecto, se muestra un mensaje de error sin cerrar el modal. Solo al ingresar el código correcto el sistema procede a crear la cuenta vía `POST /api/auth/register`.
+  * Una vez creada la cuenta, el sistema almacena el token JWT en `localStorage` y redirige automáticamente al panel de cliente.
 
 ### 3.3. Panel del Cliente (`client-dashboard.html` y `client-dashboard.js`)
 * **Propósito**: Interfaz de autogestión de estadías para los clientes del hotel.
@@ -90,23 +93,46 @@ El diseño visual está inspirado en la estética alegre y colorida del juego cl
     * Muestra métricas rápidas de habitaciones disponibles y ocupadas.
     * Una tabla con todas las habitaciones del hotel donde el administrador puede cambiar su estado de forma manual en tiempo real (por ejemplo, liberar una habitación ocupada).
     * Feed de historial donde se registran cronológicamente todas las acciones del sistema.
-  * **Pestaña 2: Finanzas & Usuarios (Nueva Pantalla)**:
+  * **Pestaña 2: Finanzas & Usuarios**:
     * Muestra el cálculo de ingresos totales recaudados por el hotel.
-    * Una tabla que lista todos los clientes registrados y sus correos electrónicos (excluyendo IDs largos para mayor legibilidad).
+    * Una tabla que lista todos los clientes registrados y sus correos electrónicos.
     * Desglose detallado de las habitaciones reservadas por cada cliente, noches, subtotal de pagos y total acumulado pagado por usuario.
 
 ---
 
-## 4. Funcionalidades y Mecanismos Clave del Servidor
+## 4. Flujo de Verificación de Cuenta al Registro
 
-1. **Gestión de Sesiones (JWT)**: Las solicitudes protegidas viajan con una cabecera `Authorization: Bearer <token>`. El backend verifica la firma criptográfica para validar la identidad y el rol.
-2. **Cruce de Datos Financieros**: El endpoint `/api/rooms/admin/financial-stats` procesa todas las reservas registradas, calcula la diferencia en milisegundos de las fechas de entrada/salida para derivar la cantidad de noches y multiplica este valor por la tarifa registrada al momento de reservar, garantizando estadísticas financieras precisas.
-3. **Control de Errores Robustos**: El backend captura excepciones críticas y previene la caída del servidor enviando códigos HTTP informativos (como `401 Unauthorized` o `404 Not Found`).
+El proceso de creación de cuenta sigue estos pasos:
+
+1. El usuario completa el formulario de registro con nombre, correo y contraseña.
+2. El sistema valida todos los campos en el frontend (longitud, formato de email, coincidencia de contraseñas).
+3. Si las validaciones pasan, **en lugar de crear la cuenta de inmediato**, se despliega un modal de verificación.
+4. El modal solicita un código de 6 dígitos simulando un envío de correo electrónico.
+5. El usuario ingresa el código **`333777`** (código fijo de simulación).
+6. Si el código es correcto, el sistema realiza la petición al backend (`POST /api/auth/register`) y crea la cuenta.
+7. Si el código es incorrecto, se muestra un error en el modal y el usuario puede reintentar sin perder los datos del formulario.
+8. Al cancelar el modal, se cierra sin crear la cuenta ni perder los datos del formulario.
+
+> **Nota**: El código `333777` es un valor fijo de demostración. En un entorno de producción real, este código se generaría aleatoriamente y se enviaría al correo del usuario mediante un servicio de email (por ejemplo: SendGrid, Nodemailer, etc.).
 
 ---
 
-## 5. Credenciales de Acceso por Defecto
-El sistema cuenta con las siguientes cuentas de prueba integradas en [users.json](file:///c:/Users/DELL/Downloads/Universidad/ia/Hotel%20Penguin%201/backend/data/users.json):
+## 5. Funcionalidades y Mecanismos Clave del Servidor
 
-* **Usuario Cliente**: `cliente@gmail.com` | Contraseña: `123456`
-* **Usuario Administrador**: `admin@gmail.com` | Contraseña: `123456`
+1. **Gestión de Sesiones (JWT)**: Las solicitudes protegidas viajan con una cabecera `Authorization: Bearer <token>`. El backend verifica la firma criptográfica para validar la identidad y el rol.
+2. **Cruce de Datos Financieros**: El endpoint `/api/rooms/admin/financial-stats` procesa todas las reservas registradas, calcula la diferencia en milisegundos de las fechas de entrada/salida para derivar la cantidad de noches y multiplica este valor por la tarifa registrada al momento de reservar, garantizando estadísticas financieras precisas.
+3. **Control de Errores Robusto**: El backend captura excepciones críticas y previene la caída del servidor enviando códigos HTTP informativos (como `401 Unauthorized` o `404 Not Found`).
+4. **Hashing de Contraseñas**: Las contraseñas nunca se almacenan en texto plano. Se usa `bcryptjs` con salt de 10 rondas para proteger las credenciales de los usuarios en `users.json`.
+
+---
+
+## 6. Credenciales de Acceso por Defecto
+
+El sistema cuenta con las siguientes cuentas de prueba integradas en `backend/data/users.json`:
+
+| Rol | Correo | Contraseña |
+|-----|--------|------------|
+| Cliente | `cliente@gmail.com` | `123456` |
+| Administrador | `admin@gmail.com` | `123456` |
+
+Para crear una **nueva cuenta**, utiliza la pantalla de registro e ingresa el código de verificación **`333777`** cuando se solicite.

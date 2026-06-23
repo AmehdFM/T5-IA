@@ -85,35 +85,76 @@ document.getElementById('register-form').addEventListener('submit', async functi
     return showAlert(alertBox, 'error', '⚠️ Las contraseñas no coinciden.');
   }
 
-  setLoading(btn, true, 'Creando cuenta...');
+  // Modal Elements
+  const modal = document.getElementById('verification-modal');
+  const codeInput = document.getElementById('verification-code');
+  const cancelBtn = document.getElementById('btn-cancel-verify');
+  const confirmBtn = document.getElementById('btn-confirm-verify');
+  const modalAlertBox = document.getElementById('modal-alert-box');
 
-  try {
-    const res  = await fetch(`${API}/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password })
-    });
-    const data = await res.json();
+  // Abre el modal para verificación
+  modal.style.display = 'flex';
+  codeInput.value = '';
+  clearAlert(modalAlertBox);
 
-    if (!res.ok) {
-      showAlert(alertBox, 'error', `❌ ${data.error}`);
+  // Escuchar cancelar
+  const onCancel = () => {
+    modal.style.display = 'none';
+    cleanup();
+  };
+
+  // Escuchar confirmar
+  const onConfirm = async () => {
+    const enteredCode = codeInput.value.trim();
+    clearAlert(modalAlertBox);
+
+    if (enteredCode !== '333777') {
+      showAlert(modalAlertBox, 'error', '⚠️ Código incorrecto. Vuelve a intentarlo.');
       return;
     }
 
-    // Éxito: guardar token y redirigir al dashboard
-    localStorage.setItem('authToken', data.token);
-    localStorage.setItem('authUser', JSON.stringify(data.user));
+    // Código correcto: proceder a crear la cuenta
+    modal.style.display = 'none';
+    cleanup();
+    
+    setLoading(btn, true, 'Creando cuenta...');
 
-    showAlert(alertBox, 'success', '✅ <strong>¡Cuenta creada!</strong> Redirigiendo al dashboard...');
+    try {
+      const res  = await fetch(`${API}/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password })
+      });
+      const data = await res.json();
 
-    setTimeout(() => {
-      window.location.href = 'client-dashboard.html';
-    }, 1000);
+      if (!res.ok) {
+        showAlert(alertBox, 'error', `❌ ${data.error}`);
+        return;
+      }
 
-  } catch {
-    showAlert(alertBox, 'error', '❌ No se pudo conectar con el servidor. ¿Está corriendo?');
-  } finally {
-    setLoading(btn, false, 'Crear Cuenta');
+      // Éxito: guardar token y redirigir al dashboard
+      localStorage.setItem('authToken', data.token);
+      localStorage.setItem('authUser', JSON.stringify(data.user));
+
+      showAlert(alertBox, 'success', '✅ <strong>¡Cuenta creada!</strong> Redirigiendo al dashboard...');
+
+      setTimeout(() => {
+        window.location.href = 'client-dashboard.html';
+      }, 1000);
+
+    } catch {
+      showAlert(alertBox, 'error', '❌ No se pudo conectar con el servidor. ¿Está corriendo?');
+    } finally {
+      setLoading(btn, false, 'Crear Cuenta');
+    }
+  };
+
+  cancelBtn.addEventListener('click', onCancel);
+  confirmBtn.addEventListener('click', onConfirm);
+
+  function cleanup() {
+    cancelBtn.removeEventListener('click', onCancel);
+    confirmBtn.removeEventListener('click', onConfirm);
   }
 });
 
