@@ -42,13 +42,23 @@ const simulateEmail = (to, subject, body) => {
 
 const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
+const euclideanDistance = (desc1, desc2) => {
+  if (!desc1 || !desc2 || desc1.length !== desc2.length) return Infinity;
+  let sum = 0;
+  for (let i = 0; i < desc1.length; i++) {
+    const diff = desc1[i] - desc2[i];
+    sum += diff * diff;
+  }
+  return Math.sqrt(sum);
+};
+
 // ─────────────────────────────────────────────────────────────
 //  POST /api/auth/register
 //  Registra un nuevo usuario
 // ─────────────────────────────────────────────────────────────
 router.post('/register', async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, faceDescriptor } = req.body;
 
     // Validar campos
     if (!name || !email || !password) {
@@ -84,6 +94,7 @@ router.post('/register', async (req, res) => {
       name: name.trim(),
       email: email.toLowerCase().trim(),
       password: hashedPassword,
+      faceDescriptor: faceDescriptor || null,
       role: 'client',
       verified: true,
       verificationToken: null,
@@ -213,6 +224,66 @@ router.post('/login', async (req, res) => {
 
   } catch (err) {
     console.error('[login]', err);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
+// ─────────────────────────────────────────────────────────────
+//  POST /api/auth/login-face
+//  Inicia sesión mediante reconocimiento facial
+// ─────────────────────────────────────────────────────────────
+router.post('/login-face', async (req, res) => {
+  try {
+    const { faceDescriptor } = req.body;
+
+    if (!faceDescriptor || !Array.isArray(faceDescriptor)) {
+      return res.status(400).json({ error: 'Descriptor facial requerido' });
+    }
+
+    const users = readUsers();
+    
+    let bestMatch = null;
+    let minDistance = Infinity;
+
+    for (const user of users) {
+      if (user.faceDescriptor) {
+        const distance = euclideanDistance(faceDescriptor, user.faceDescriptor);
+        if (distance < minDistance) {
+          minDistance = distance;
+          bestMatch = user;
+        }
+      }
+    }
+
+    // 0.6 es el umbral estándar sugerido por face-api.js
+    if (bestMatch && minDistance < 0.6) {
+      if (!bestMatch.verified) {
+        return res.status(401).json({ error: 'Debes verificar tu email primero.' });
+      }
+
+      const token = jwt.sign(
+        { id: bestMatch.id, email: bestMatch.email, name: bestMatch.name },
+        JWT_SECRET,
+        { expiresIn: '24h' }
+      );
+
+      return res.json({
+        message: 'Sesión facial iniciada exitosamente',
+        token,
+        user: {
+          id: bestMatch.id,
+          name: bestMatch.name,
+          email: bestMatch.email,
+          role: bestMatch.role || 'client',
+          createdAt: bestMatch.createdAt
+        }
+      });
+    }
+
+    res.status(401).json({ error: 'Rostro no reconocido' });
+
+  } catch (err) {
+    console.error('[login-face]', err);
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 });

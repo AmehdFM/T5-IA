@@ -12,7 +12,7 @@ app.use(cors());
 app.use(express.json());
 
 // ─── Servir frontend estático ─────────────────────────────────
-app.use(express.static(path.join(__dirname, '../frontend')));
+app.use(express.static(path.join(__dirname, '../frontend-react/dist')));
 
 // ─── Rutas de API ─────────────────────────────────────────────
 app.use('/api/auth', authRoutes);
@@ -21,7 +21,7 @@ app.use('/api/rooms', roomsRoutes);
 // ─── Fallback: servir index.html para rutas del frontend ──────
 app.get('*', (req, res) => {
   if (!req.path.startsWith('/api')) {
-    res.sendFile(path.join(__dirname, '../frontend', 'index.html'));
+    res.sendFile(path.join(__dirname, '../frontend-react/dist', 'index.html'));
   }
 });
 
