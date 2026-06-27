@@ -278,4 +278,36 @@ router.get('/admin/financial-stats', validateToken, validateAdmin, (req, res) =>
   }
 });
 
+// PUT /api/rooms/admin/:id - Editar una habitación
+router.put('/admin/:id', validateToken, validateAdmin, (req, res) => {
+  try {
+    const { name, description, price } = req.body;
+    
+    if (!name || !description || price === undefined) {
+      return res.status(400).json({ error: 'Nombre, descripción y precio son requeridos' });
+    }
+
+    const rooms = readData(ROOMS_FILE);
+    const roomIndex = rooms.findIndex(r => r.id === req.params.id);
+
+    if (roomIndex === -1) {
+      return res.status(404).json({ error: 'Habitación no encontrada' });
+    }
+
+    rooms[roomIndex].name = name;
+    rooms[roomIndex].description = description;
+    rooms[roomIndex].price = Number(price);
+
+    writeData(ROOMS_FILE, rooms);
+
+    res.json({
+      message: 'Habitación actualizada exitosamente',
+      room: rooms[roomIndex]
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al actualizar la habitación' });
+  }
+});
+
 module.exports = router;

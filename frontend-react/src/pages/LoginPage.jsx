@@ -10,6 +10,7 @@ export default function LoginPage({ modelsLoaded }) {
   const [scanMessage, setScanMessage] = useState('');
   
   const videoRef = useRef(null);
+  const intervalRef = useRef(null);
   const navigate = useNavigate();
 
   const startVideo = () => {
@@ -29,6 +30,10 @@ export default function LoginPage({ modelsLoaded }) {
   };
 
   const stopVideo = () => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
     if (videoRef.current && videoRef.current.srcObject) {
       const tracks = videoRef.current.srcObject.getTracks();
       tracks.forEach(track => track.stop());
@@ -45,7 +50,7 @@ export default function LoginPage({ modelsLoaded }) {
     setScanMessage('Buscando tu rostro...');
     
     // Interval to detect face
-    const interval = setInterval(async () => {
+    intervalRef.current = setInterval(async () => {
       if (!videoRef.current) return;
       
       const detections = await faceapi.detectSingleFace(
@@ -54,7 +59,8 @@ export default function LoginPage({ modelsLoaded }) {
       ).withFaceLandmarks().withFaceDescriptor();
 
       if (detections) {
-        clearInterval(interval);
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
         setScanMessage('¡Rostro detectado! Ingresando... 🐧');
         stopVideo();
         
@@ -99,7 +105,7 @@ export default function LoginPage({ modelsLoaded }) {
           navigate('/client-dashboard');
         }
       } else {
-        alert(data.message || "Rostro no reconocido.");
+        alert(data.error || "Rostro no reconocido.");
         setUseFaceID(false);
       }
     } catch (err) {
@@ -130,7 +136,7 @@ export default function LoginPage({ modelsLoaded }) {
           navigate('/client-dashboard');
         }
       } else {
-        alert(data.message || "Credenciales inválidas");
+        alert(data.error || "Credenciales inválidas");
       }
     } catch (err) {
       console.error(err);
@@ -199,6 +205,7 @@ export default function LoginPage({ modelsLoaded }) {
         <div className="login-footer">
           <p>¿Olvidaste tu llave? <Link to="/forgot">Recuperar acceso</Link></p>
           <p>¿Eres un pingüino nuevo? <Link to="/register">Crear cuenta</Link></p>
+          <p style={{marginTop: '10px'}}><Link to="/">← Volver al Inicio</Link></p>
         </div>
       </div>
     </div>

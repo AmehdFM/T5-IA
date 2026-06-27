@@ -423,4 +423,42 @@ router.get('/me', validateToken, (req, res) => {
   });
 });
 
+// ─────────────────────────────────────────────────────────────
+// Middleware for Admin
+// ─────────────────────────────────────────────────────────────
+const validateAdmin = (req, res, next) => {
+  try {
+    const users = readUsers();
+    const user = users.find(u => u.id === req.user.id);
+    if (!user || user.role !== 'admin') {
+      return res.status(403).json({ error: 'Acceso denegado. Se requieren permisos de administrador.' });
+    }
+    next();
+  } catch (err) {
+    res.status(500).json({ error: 'Error interno del servidor en validación de rol' });
+  }
+};
+
+// ─────────────────────────────────────────────────────────────
+// GET /api/auth/admin/users
+// ─────────────────────────────────────────────────────────────
+router.get('/admin/users', validateToken, validateAdmin, (req, res) => {
+  try {
+    const users = readUsers();
+    // Remover datos sensibles
+    const cleanUsers = users.map(u => ({
+      id: u.id,
+      name: u.name,
+      email: u.email,
+      role: u.role || 'client',
+      verified: u.verified,
+      createdAt: u.createdAt
+    }));
+    res.json(cleanUsers);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al obtener usuarios' });
+  }
+});
+
 module.exports = router;

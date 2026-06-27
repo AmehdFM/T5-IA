@@ -14,7 +14,7 @@
     "description": "Cabaña rústica construida con troncos de pino alpino de alta calidad. Cuenta con dos camas matrimoniales ultra suaves rellenas de plumón de puffle, balcón privado con fogata de gas y servicio de café de puffle ilimitado.",
     "shortDescription": "2 Camas Matrimoniales, Fogata en balcón, Café ilimitado",
     "price": 250,
-    "status": "disponible",
+    "status": "ocupada",
     "image": "img/habitacion_hotel_2.png"
   },
   {
@@ -77,7 +77,7 @@
     "description": "Decorada con detalles en hielo teñido de verde esmeralda y luces LED ambientales. Ofrece una ambientación fantástica con cama con dosel, sistema de sonido envolvente, ducha escocesa de alta presión y chimenea ecológica.",
     "shortDescription": "Cama dosel, Ducha escocesa, Luces LED rítmicas, Chimenea ecológica",
     "price": 380,
-    "status": "disponible",
+    "status": "ocupada",
     "image": "img/habitacion_hotel_1.png"
   },
   {

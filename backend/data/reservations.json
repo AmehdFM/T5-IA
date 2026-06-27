@@ -1,1 +1,26 @@
-[]
+[
+  {
+    "id": "5ff3db6e-f3dc-4aec-b6d1-ed9c7a76ef56",
+    "roomId": "hab-02",
+    "roomName": "Cabaña Ventisca",
+    "userId": "e046446c-e30a-4e42-b286-141cf8c4f711",
+    "userName": "amei",
+    "userEmail": "amei@amei.com",
+    "date": "2026-06-27T05:18:07.794Z",
+    "startDate": "2026-06-27",
+    "endDate": "2026-07-25",
+    "price": 250
+  },
+  {
+    "id": "36aef306-d3df-43ce-8a82-1052bb60229e",
+    "roomId": "hab-09",
+    "roomName": "Suite Glaciar Esmeralda",
+    "userId": "e046446c-e30a-4e42-b286-141cf8c4f711",
+    "userName": "amei",
+    "userEmail": "amei@amei.com",
+    "date": "2026-06-27T05:22:16.327Z",
+    "startDate": "2026-06-27",
+    "endDate": "2026-06-30",
+    "price": 380
+  }
+]

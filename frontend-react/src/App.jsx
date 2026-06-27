@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import * as faceapi from 'face-api.js';
 
 // Pages (to be implemented)
+import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
@@ -37,7 +38,8 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<LoginPage modelsLoaded={modelsLoaded} />} />
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<LoginPage modelsLoaded={modelsLoaded} />} />
         <Route path="/register" element={<RegisterPage modelsLoaded={modelsLoaded} />} />
         <Route path="/forgot" element={<ForgotPasswordPage />} />
         

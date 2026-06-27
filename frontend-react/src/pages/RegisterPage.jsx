@@ -13,7 +13,7 @@ export default function RegisterPage({ modelsLoaded }) {
   const [scanMessage, setScanMessage] = useState('');
   
   const videoRef = useRef(null);
-  const canvasRef = useRef(null);
+  const intervalRef = useRef(null);
   const navigate = useNavigate();
 
   // Start webcam
@@ -34,6 +34,10 @@ export default function RegisterPage({ modelsLoaded }) {
   };
 
   const stopVideo = () => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
     if (videoRef.current && videoRef.current.srcObject) {
       const tracks = videoRef.current.srcObject.getTracks();
       tracks.forEach(track => track.stop());
@@ -50,7 +54,7 @@ export default function RegisterPage({ modelsLoaded }) {
     setScanMessage('Buscando tu rostro...');
     
     // Interval to detect face
-    const interval = setInterval(async () => {
+    intervalRef.current = setInterval(async () => {
       if (!videoRef.current) return;
       
       const detections = await faceapi.detectSingleFace(
@@ -59,7 +63,8 @@ export default function RegisterPage({ modelsLoaded }) {
       ).withFaceLandmarks().withFaceDescriptor();
 
       if (detections) {
-        clearInterval(interval);
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
         setFaceDescriptor(Array.from(detections.descriptor));
         setScanMessage('¡Rostro escaneado con éxito! 🐧');
         stopVideo();
@@ -113,7 +118,7 @@ export default function RegisterPage({ modelsLoaded }) {
         localStorage.setItem('penguin_user', JSON.stringify(data.user));
         navigate('/client-dashboard');
       } else {
-        alert(data.message || "Error al registrarse");
+        alert(data.error || "Error al registrarse");
       }
     } catch (err) {
       console.error(err);
@@ -196,7 +201,8 @@ export default function RegisterPage({ modelsLoaded }) {
         </form>
 
         <div className="login-footer">
-          <p>¿Ya tienes cuenta? <Link to="/">Inicia sesión aquí</Link></p>
+          <p>¿Ya tienes cuenta? <Link to="/login">Inicia sesión aquí</Link></p>
+          <p style={{marginTop: '10px'}}><Link to="/">← Volver al Inicio</Link></p>
         </div>
       </div>
     </div>

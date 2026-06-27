@@ -72,7 +72,7 @@ export default function ForgotPasswordPage() {
         )}
 
         <div className="login-footer" style={{ marginTop: '20px' }}>
-          <p><Link to="/">← Volver al Login</Link></p>
+          <p><Link to="/login">← Volver al Login</Link></p>
         </div>
       </div>
     </div>

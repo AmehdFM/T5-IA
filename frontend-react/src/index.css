@@ -1,111 +1,235 @@
-:root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
-
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
-
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
-}
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700;800;900&display=swap');
 
 body {
   margin: 0;
+  padding: 0;
+  font-family: 'Nunito', sans-serif;
+  background-color: #001f57;
+  color: #ffffff;
 }
 
-#root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
+* {
   box-sizing: border-box;
 }
 
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
+/* Custom styles for React Pages */
+.login-body {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  padding: 20px;
 }
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
+
+.bg-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  background-color: #001f57;
 }
-p {
+
+.bg-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.8;
+}
+
+.login-box {
+  background: white;
+  padding: 40px;
+  border-radius: 15px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  width: 100%;
+  max-width: 450px;
+  border: 4px solid var(--cp-yellow, #ffcc00);
+  z-index: 10;
+  color: #333;
+}
+
+.db-brand {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 2.2rem;
+  font-weight: bold;
+  color: #002266;
+}
+
+.brand-accent {
+  color: var(--cp-yellow, #ffcc00);
+}
+
+.input-group {
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+.input-group label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #002266;
+}
+
+.input-group input, .input-group select {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #ccc;
+  border-radius: 5px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1rem;
+}
+
+.btn-primary {
+  background: var(--cp-yellow, #ffcc00);
+  color: #002266;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: all 0.2s;
+  box-shadow: 0 4px 0 var(--cp-yellow-dark, #cc9900);
+  display: inline-block;
+}
+.btn-primary:hover {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 var(--cp-yellow-dark, #cc9900);
+}
+
+.btn-secondary {
+  background: #eee;
+  color: #333;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s;
+}
+.btn-secondary:hover {
+  background: #ddd;
+}
+
+.btn-action-sm {
+  border: none;
+  padding: 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1rem;
+  transition: opacity 0.2s;
+}
+.btn-action-sm:hover {
+  opacity: 0.9;
+}
+
+.login-footer {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 0.95rem;
+}
+
+.login-footer a {
+  color: #0055ff;
+  text-decoration: none;
+  font-weight: bold;
+}
+.login-footer a:hover {
+  text-decoration: underline;
+}
+
+/* Dashboard Styles */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 30px;
+  background: linear-gradient(180deg, #0059ff 0%, #003cd0 100%);
+  border-bottom: 5px solid var(--cp-yellow, #ffcc00);
+  color: white;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.navbar .db-brand {
+  color: white;
+}
+
+.nav-links span {
+  font-weight: bold;
+  color: white;
+}
+
+.db-container {
+  padding: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.db-header {
+  text-align: center;
+  margin-bottom: 40px;
+  color: white;
+}
+
+.db-header p {
+  font-size: 1.1rem;
+  opacity: 0.9;
+}
+
+.rooms-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 30px;
+}
+
+.room-card {
+  background: white;
+  border-radius: 15px;
+  overflow: hidden;
+  border: 4px solid #fff;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  transition: transform 0.3s, border-color 0.3s;
+}
+
+.room-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--cp-yellow, #ffcc00);
+}
+
+.room-img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.room-content {
+  padding: 20px;
+  color: #333;
+}
+
+.room-content h3 {
   margin: 0;
+  color: #002266;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 1.4rem;
 }
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
-}
-
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+.room-price {
+  font-weight: bold;
+  color: #009922;
+  background: #e6ffe6;
+  padding: 5px 10px;
+  border-radius: 5px;
 }
