@@ -7,11 +7,6 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Docker files (Excluded as requested)
-Dockerfile
-docker-compose.yml
-.dockerignore
-
 # OS files
 .DS_Store
 Thumbs.db
