@@ -28,24 +28,17 @@ El diseño visual está inspirado en la estética alegre y colorida del juego cl
 │   │   └── rooms.js          # Rutas para habitaciones, reservas y reportes del admin
 │   ├── package.json     # Declaración de dependencias del servidor
 │   └── server.js        # Configuración e inicio del servidor HTTP Express
-├── frontend/
-│   ├── css/
-│   │   └── styles.css        # Hoja de estilos con variables de color y tipografía de Club Penguin
-│   ├── img/             # Imágenes realistas de habitaciones y logos
-│   ├── js/              # Lógica de scripting e interactividad de la UI (AJAX / Fetch API)
-│   │   ├── login.js
-│   │   ├── register.js
-│   │   ├── client-dashboard.js
-│   │   ├── admin-dashboard.js
-│   │   └── room-detail.js
-│   ├── index.html            # Pantalla de inicio de sesión
-│   ├── register.html         # Pantalla de registro de usuarios
-│   ├── client-dashboard.html # Panel principal del cliente
-│   ├── room-detail.html      # Vista detallada de habitación para reserva
-│   ├── admin-dashboard.html  # Panel de administración
-│   ├── forgot.html           # Solicitud de recuperación de credenciales
-│   ├── reset-password.html   # Restablecimiento de contraseña
-│   └── verify.html           # Confirmación de correo
+├── frontend-react/      # Frontend migrado a React + Vite
+│   ├── public/          # Archivos estáticos (img, models de Face API, favicon)
+│   ├── src/
+│   │   ├── pages/            # Páginas de la app (Landing, Login, Register, Dashboards, etc.)
+│   │   ├── styles.css        # Hoja de estilos con variables de color y tipografía de Club Penguin
+│   │   ├── index.css         # Estilos base y de componentes de las páginas React
+│   │   ├── App.jsx           # Definición de rutas (React Router)
+│   │   └── main.jsx          # Punto de entrada de la aplicación
+│   ├── index.html       # HTML raíz que monta la app React
+│   ├── vite.config.js   # Configuración de Vite
+│   └── package.json     # Dependencias y scripts del frontend (build / dev)
 ├── Dockerfile           # Receta de empaquetado Docker (Node.js Alpine)
 └── README.md            # Informe y manual de uso del sistema
 ```
