@@ -6,7 +6,7 @@ Este documento proporciona una explicación detallada del sistema de reservas de
 
 ## 1. Descripción General del Sistema
 
-El sistema es una aplicación web SPA (Single Page Application) montada sobre una arquitectura cliente-servidor (Node.js/Express) contenerizada con Docker. La persistencia de datos se gestiona mediante archivos JSON en disco en lugar de una base de datos relacional compleja, lo que facilita el despliegue inmediato sin configuraciones externas.
+El sistema es una aplicación web SPA (Single Page Application) construida con **React + Vite**. Funciona en **modo demostración 100% en el navegador**: no requiere servidor ni base de datos. Toda la lógica que antes vivía en un backend Express (registro, login, login facial, reservas, panel de administración) está **simulada en memoria** mediante el módulo [`src/mockApi.js`](src/mockApi.js), que intercepta las llamadas `fetch('/api/...')` y responde con datos guardados en `localStorage`. Esto permite publicar el sitio como contenido estático en cualquier hosting (por ejemplo Cloudflare Pages) sin configuración.
 
 El diseño visual está inspirado en la estética alegre y colorida del juego clásico **Club Penguin** (fuentes tipográficas redondeadas, colores azules, amarillos y naranjas contrastantes, bordes gruesos y uso de emojis polares). A nivel de experiencia de usuario, se eliminaron las tarjetas genéricas en favor de contenedores planos minimalistas e integrados que utilizan el 100% de la pantalla para mejorar el espacio y legibilidad.
 
@@ -14,32 +14,24 @@ El diseño visual está inspirado en la estética alegre y colorida del juego cl
 
 ## 2. Arquitectura de Archivos y Directorios
 
+La aplicación React + Vite vive en la **raíz del repositorio** (estructura estándar de Vite), de modo que Cloudflare Pages la detecta y despliega sin necesidad de configurar nada.
+
 ```text
-├── backend/
-│   ├── data/            # Persistencia local (JSON)
-│   │   ├── users.json        # Base de datos de usuarios (con contraseñas hasheadas mediante bcrypt)
-│   │   ├── rooms.json        # Base de datos de 15 habitaciones e iglús del hotel
-│   │   ├── reservations.json # Listado global de reservas
-│   │   └── history.json      # Logs de movimientos para auditoría del admin
-│   ├── middleware/      # Capa de seguridad
-│   │   └── validateToken.js  # Validación de tokens JWT y expiración de sesiones
-│   ├── routes/          # Controladores de la API REST
-│   │   ├── auth.js           # Rutas para registro, verificación, login y restablecimiento
-│   │   └── rooms.js          # Rutas para habitaciones, reservas y reportes del admin
-│   ├── package.json     # Declaración de dependencias del servidor
-│   └── server.js        # Configuración e inicio del servidor HTTP Express
-├── frontend-react/      # Frontend migrado a React + Vite
-│   ├── public/          # Archivos estáticos (img, models de Face API, favicon)
-│   ├── src/
-│   │   ├── pages/            # Páginas de la app (Landing, Login, Register, Dashboards, etc.)
-│   │   ├── styles.css        # Hoja de estilos con variables de color y tipografía de Club Penguin
-│   │   ├── index.css         # Estilos base y de componentes de las páginas React
-│   │   ├── App.jsx           # Definición de rutas (React Router)
-│   │   └── main.jsx          # Punto de entrada de la aplicación
-│   ├── index.html       # HTML raíz que monta la app React
-│   ├── vite.config.js   # Configuración de Vite
-│   └── package.json     # Dependencias y scripts del frontend (build / dev)
-├── Dockerfile           # Receta de empaquetado Docker (Node.js Alpine)
+├── public/              # Archivos estáticos servidos tal cual
+│   ├── img/                  # Imágenes de habitaciones, fondo y mascota
+│   ├── models/               # Modelos de IA de face-api.js (reconocimiento facial)
+│   ├── favicon.svg
+│   └── _redirects            # Regla de ruteo SPA para hosting estático (/* → index.html)
+├── src/
+│   ├── pages/                # Páginas (Landing, Login, Register, Dashboards, RoomDetail, etc.)
+│   ├── mockApi.js            # Backend SIMULADO en el navegador (intercepta fetch /api)
+│   ├── styles.css            # Hoja de estilos con la estética Club Penguin
+│   ├── index.css             # Estilos base y de componentes
+│   ├── App.jsx               # Definición de rutas (React Router)
+│   └── main.jsx              # Punto de entrada (carga mockApi.js y la app)
+├── index.html           # HTML raíz que monta la app React
+├── vite.config.js       # Configuración de Vite
+├── package.json         # Dependencias y scripts (npm run dev / build)
 └── README.md            # Informe y manual de uso del sistema
 ```
 
@@ -121,11 +113,25 @@ El proceso de creación de cuenta sigue estos pasos:
 
 ## 6. Credenciales de Acceso por Defecto
 
-El sistema cuenta con las siguientes cuentas de prueba integradas en `backend/data/users.json`:
+El sistema cuenta con las siguientes cuentas de prueba integradas en la simulación ([`src/mockApi.js`](src/mockApi.js)):
 
 | Rol | Correo | Contraseña |
 |-----|--------|------------|
-| Cliente | `cliente@gmail.com` | `123456` |
-| Administrador | `admin@gmail.com` | `123456` |
+| Cliente | `cliente@gmail.com` | `cliente123` |
+| Administrador | `admin@gmail.com` | `admin123` |
 
-Para crear una **nueva cuenta**, utiliza la pantalla de registro e ingresa el código de verificación **`333777`** cuando se solicite.
+También puedes crear una **nueva cuenta** desde la pantalla de registro (opcionalmente con Face ID) y luego iniciar sesión con ella. Los datos viven en `localStorage` durante la demo.
+
+---
+
+## 7. Desarrollo y Despliegue
+
+```bash
+npm install     # instalar dependencias
+npm run dev     # servidor de desarrollo (http://localhost:5173)
+npm run build   # build de producción → carpeta dist/
+```
+
+**Despliegue en Cloudflare Pages (sin configuración):** al estar la app en la raíz, Cloudflare detecta Vite automáticamente y rellena Build command (`npm run build`) y Output directory (`dist`). Solo conecta el repositorio y publica.
+
+> El reconocimiento facial requiere **HTTPS** para acceder a la cámara (Cloudflare Pages lo provee automáticamente).
