@@ -1,137 +1,109 @@
-# Informe de Proyecto: Sistema de Gestión Hotel Club Penguin 🐧
+# Hotel Club Penguin | Demo de reservas con React
 
-Este documento proporciona una explicación detallada del sistema de reservas del **Hotel Club Penguin**, incluyendo su arquitectura general, la descripción técnica de todas las páginas y vistas, la funcionalidad implementada y el flujo de los roles de usuario (Cliente y Administrador).
+Prototipo frontend de una plataforma hotelera con catálogo de habitaciones, reservas y paneles de cliente y administración. Su identidad visual utiliza una temática polar inspirada en Club Penguin.
 
----
+> **Modo demostración:** la aplicación funciona en el navegador. Las llamadas a la API se simulan y los datos se guardan en localStorage; no hay un backend ni una base de datos remota en esta versión.
 
-## 1. Descripción General del Sistema
+## Qué muestra el proyecto
 
-El sistema es una aplicación web SPA (Single Page Application) construida con **React + Vite**. Funciona en **modo demostración 100% en el navegador**: no requiere servidor ni base de datos. Toda la lógica que antes vivía en un backend Express (registro, login, login facial, reservas, panel de administración) está **simulada en memoria** mediante el módulo [`src/mockApi.js`](src/mockApi.js), que intercepta las llamadas `fetch('/api/...')` y responde con datos guardados en `localStorage`. Esto permite publicar el sitio como contenido estático en cualquier hosting (por ejemplo Cloudflare Pages) sin configuración.
+Un recorrido de producto desde la selección de una habitación hasta la consulta de reservas y su administración. La demo permite explorar los flujos sin desplegar un servidor de aplicación.
 
-El diseño visual está inspirado en la estética alegre y colorida del juego clásico **Club Penguin** (fuentes tipográficas redondeadas, colores azules, amarillos y naranjas contrastantes, bordes gruesos y uso de emojis polares). A nivel de experiencia de usuario, se eliminaron las tarjetas genéricas en favor de contenedores planos minimalistas e integrados que utilizan el 100% de la pantalla para mejorar el espacio y legibilidad.
+## Funcionalidades de la demo
 
----
+- Presentación del hotel y catálogo de habitaciones.
+- Registro, acceso y recuperación de cuenta simulados.
+- Verificación de registro mediante un código de demostración.
+- Detalle de habitación, selección de fechas y cálculo de importe.
+- Panel del cliente con sus reservas.
+- Panel administrativo con habitaciones, usuarios, ingresos e historial.
+- Integración de face-api.js para explorar acceso facial en el navegador.
+- Estado persistido localmente entre recargas.
 
-## 2. Arquitectura de Archivos y Directorios
+Las cuentas, comprobaciones y métricas pertenecen a la simulación. No representan cobros, correos enviados ni controles de identidad válidos para producción.
 
-La aplicación React + Vite vive en la **raíz del repositorio** (estructura estándar de Vite), de modo que Cloudflare Pages la detecta y despliega sin necesidad de configurar nada.
+## Tecnologías
 
-```text
-├── public/              # Archivos estáticos servidos tal cual
-│   ├── img/                  # Imágenes de habitaciones, fondo y mascota
-│   ├── models/               # Modelos de IA de face-api.js (reconocimiento facial)
-│   ├── favicon.svg
-│   └── _redirects            # Regla de ruteo SPA para hosting estático (/* → index.html)
-├── src/
-│   ├── pages/                # Páginas (Landing, Login, Register, Dashboards, RoomDetail, etc.)
-│   ├── mockApi.js            # Backend SIMULADO en el navegador (intercepta fetch /api)
-│   ├── styles.css            # Hoja de estilos con la estética Club Penguin
-│   ├── index.css             # Estilos base y de componentes
-│   ├── App.jsx               # Definición de rutas (React Router)
-│   └── main.jsx              # Punto de entrada (carga mockApi.js y la app)
-├── index.html           # HTML raíz que monta la app React
-├── vite.config.js       # Configuración de Vite
-├── package.json         # Dependencias y scripts (npm run dev / build)
-└── README.md            # Informe y manual de uso del sistema
-```
+| Área | Implementación |
+|---|---|
+| Interfaz | React 19 y CSS |
+| Navegación | React Router |
+| Desarrollo y build | Vite 8 |
+| Demo de API | Intercepción de fetch en JavaScript |
+| Persistencia | localStorage del navegador |
+| Modelos faciales | face-api.js y archivos en public/models |
+| Análisis estático | Oxlint |
 
----
+## Organización
 
-## 3. Detalle de Páginas y Vistas del Sistema
+| Ruta | Responsabilidad |
+|---|---|
+| [src/App.jsx](src/App.jsx) | Rutas y carga de modelos faciales |
+| [src/pages/](src/pages/) | Pantallas de acceso, habitaciones y paneles |
+| [src/mockApi.js](src/mockApi.js) | API simulada, datos semilla y almacenamiento local |
+| [src/main.jsx](src/main.jsx) | Arranque e incorporación del simulador |
+| [public/img/](public/img/) | Recursos visuales del hotel |
+| [public/models/](public/models/) | Modelos utilizados por face-api.js |
+| [package.json](package.json) | Dependencias y comandos |
 
-### 3.1. Pantalla de Inicio de Sesión (`index.html` y `login.js`)
-* **Propósito**: Punto de acceso controlado al sistema mediante credenciales.
-* **Funcionalidad**:
-  * Formulario minimalista con validación de campos vacíos del lado del cliente.
-  * Botón para alternar la visibilidad de la contraseña.
-  * Petición POST a `/api/auth/login`. Si el login es exitoso, almacena el token JWT y los datos del usuario en el `localStorage` y lo redirige a su panel correspondiente según su rol (`client` o `admin`).
+## Ejecutar localmente
 
-### 3.2. Pantalla de Registro (`register.html` y `register.js`)
-* **Propósito**: Permite a nuevos usuarios del hotel registrarse en la plataforma.
-* **Funcionalidad**:
-  * Campos obligatorios: Nombre completo, Correo electrónico y Contraseña (mínimo 6 caracteres).
-  * Indicador visual de fortaleza de contraseña en tiempo real (Muy débil → Muy fuerte).
-  * **Paso de Verificación por Código (Simulado)**: Antes de crear la cuenta, el sistema realiza una validación de identidad. Tras completar el formulario correctamente, se despliega un **modal de verificación de cuenta** con el mensaje:
-    > *"Ingresa el código de verificación enviado al correo ingresado"*
-  * El usuario debe ingresar el **código por defecto `333777`** (código fijo de simulación, ya que el sistema no envía correos reales). Si el código es incorrecto, se muestra un mensaje de error sin cerrar el modal. Solo al ingresar el código correcto el sistema procede a crear la cuenta vía `POST /api/auth/register`.
-  * Una vez creada la cuenta, el sistema almacena el token JWT en `localStorage` y redirige automáticamente al panel de cliente.
-
-### 3.3. Panel del Cliente (`client-dashboard.html` y `client-dashboard.js`)
-* **Propósito**: Interfaz de autogestión de estadías para los clientes del hotel.
-* **Funcionalidad**:
-  * **Diseño de dos columnas ordenadas** que maximiza el espacio horizontal útil de la pantalla.
-  * **Columna Izquierda - Habitaciones Disponibles**: Muestra un listado ordenado de las habitaciones e iglús en estado "disponible" (obtenidas mediante un `GET` cruzado de la API). Cuenta con imágenes optimizadas y un botón para ver los detalles.
-  * **Columna Derecha - Mis Habitaciones**: Muestra las reservas activas del usuario actual de manera clara. Se renderiza la imagen de la habitación, el rango de fechas reservado (llegada y salida), el precio por noche y el importe total en Lempiras (`L.`).
-
-### 3.4. Vista Detalle de Habitación (`room-detail.html` y `room-detail.js`)
-* **Propósito**: Muestra la descripción extendida y comodidades de una habitación seleccionada para completar una reserva.
-* **Funcionalidad**:
-  * Carga dinámica de la información (imágenes, título, descripción larga y comodidades en forma de lista) utilizando el parámetro de búsqueda `?id=xxx` en la URL.
-  * **Modal de Rango de Fechas**: Al pulsar "Reservar Habitación", se despliega un cuadro de diálogo donde el usuario selecciona la fecha de llegada y salida (con validación para no elegir fechas pasadas ni rangos inconsistentes).
-  * **Cálculo en Tiempo Real**: Calcula la cantidad de noches del rango y actualiza de inmediato el precio total a pagar en Lempiras (`L.`).
-
-### 3.5. Panel de Administración (`admin-dashboard.html` y `admin-dashboard.js`)
-* **Propósito**: Panel de control del hotel para el personal administrativo.
-* **Funcionalidad**:
-  * **Sistema de navegación por pestañas en la barra superior** para alternar vistas dinámicamente sin recargar la página.
-  * **Pestaña 1: Control de Habitaciones**:
-    * Muestra métricas rápidas de habitaciones disponibles y ocupadas.
-    * Una tabla con todas las habitaciones del hotel donde el administrador puede cambiar su estado de forma manual en tiempo real (por ejemplo, liberar una habitación ocupada).
-    * Feed de historial donde se registran cronológicamente todas las acciones del sistema.
-  * **Pestaña 2: Finanzas & Usuarios**:
-    * Muestra el cálculo de ingresos totales recaudados por el hotel.
-    * Una tabla que lista todos los clientes registrados y sus correos electrónicos.
-    * Desglose detallado de las habitaciones reservadas por cada cliente, noches, subtotal de pagos y total acumulado pagado por usuario.
-
----
-
-## 4. Flujo de Verificación de Cuenta al Registro
-
-El proceso de creación de cuenta sigue estos pasos:
-
-1. El usuario completa el formulario de registro con nombre, correo y contraseña.
-2. El sistema valida todos los campos en el frontend (longitud, formato de email, coincidencia de contraseñas).
-3. Si las validaciones pasan, **en lugar de crear la cuenta de inmediato**, se despliega un modal de verificación.
-4. El modal solicita un código de 6 dígitos simulando un envío de correo electrónico.
-5. El usuario ingresa el código **`333777`** (código fijo de simulación).
-6. Si el código es correcto, el sistema realiza la petición al backend (`POST /api/auth/register`) y crea la cuenta.
-7. Si el código es incorrecto, se muestra un error en el modal y el usuario puede reintentar sin perder los datos del formulario.
-8. Al cancelar el modal, se cierra sin crear la cuenta ni perder los datos del formulario.
-
-> **Nota**: El código `333777` es un valor fijo de demostración. En un entorno de producción real, este código se generaría aleatoriamente y se enviaría al correo del usuario mediante un servicio de email (por ejemplo: SendGrid, Nodemailer, etc.).
-
----
-
-## 5. Funcionalidades y Mecanismos Clave del Servidor
-
-1. **Gestión de Sesiones (JWT)**: Las solicitudes protegidas viajan con una cabecera `Authorization: Bearer <token>`. El backend verifica la firma criptográfica para validar la identidad y el rol.
-2. **Cruce de Datos Financieros**: El endpoint `/api/rooms/admin/financial-stats` procesa todas las reservas registradas, calcula la diferencia en milisegundos de las fechas de entrada/salida para derivar la cantidad de noches y multiplica este valor por la tarifa registrada al momento de reservar, garantizando estadísticas financieras precisas.
-3. **Control de Errores Robusto**: El backend captura excepciones críticas y previene la caída del servidor enviando códigos HTTP informativos (como `401 Unauthorized` o `404 Not Found`).
-4. **Hashing de Contraseñas**: Las contraseñas nunca se almacenan en texto plano. Se usa `bcryptjs` con salt de 10 rondas para proteger las credenciales de los usuarios en `users.json`.
-
----
-
-## 6. Credenciales de Acceso por Defecto
-
-El sistema cuenta con las siguientes cuentas de prueba integradas en la simulación ([`src/mockApi.js`](src/mockApi.js)):
-
-| Rol | Correo | Contraseña |
-|-----|--------|------------|
-| Cliente | `cliente@gmail.com` | `cliente123` |
-| Administrador | `admin@gmail.com` | `admin123` |
-
-También puedes crear una **nueva cuenta** desde la pantalla de registro (opcionalmente con Face ID) y luego iniciar sesión con ella. Los datos viven en `localStorage` durante la demo.
-
----
-
-## 7. Desarrollo y Despliegue
+Requisitos: Node.js **20.19+ en la rama 20, o 22.12+**, según el requisito de Vite fijado en el lockfile, y npm.
 
 ```bash
-npm install     # instalar dependencias
-npm run dev     # servidor de desarrollo (http://localhost:5173)
-npm run build   # build de producción → carpeta dist/
+git clone https://github.com/AmehdFM/T5-IA.git
+cd T5-IA
+npm ci
+npm run dev
 ```
 
-**Despliegue en Cloudflare Pages (sin configuración):** al estar la app en la raíz, Cloudflare detecta Vite automáticamente y rellena Build command (`npm run build`) y Output directory (`dist`). Solo conecta el repositorio y publica.
+Abrir la dirección que indique Vite en la terminal, normalmente `http://localhost:5173`.
 
-> El reconocimiento facial requiere **HTTPS** para acceder a la cámara (Cloudflare Pages lo provee automáticamente).
+### Comandos
+
+```bash
+npm run lint
+npm run build
+npm run preview
+```
+
+`build` produce los archivos estáticos en `dist/`. `preview` sirve esa compilación localmente para inspeccionarla.
+
+## Recorrido de demostración
+
+La semilla de [mockApi.js](src/mockApi.js) incluye estas cuentas ficticias:
+
+| Rol | Correo | Contraseña de demo |
+|---|---|---|
+| Administrador | admin@gmail.com | admin123 |
+| Cliente | cliente@gmail.com | cliente123 |
+
+1. Entrar con el cliente y consultar las habitaciones.
+2. Elegir una habitación y un rango de fechas.
+3. Confirmar la reserva y revisar el panel del cliente.
+4. Entrar con el administrador y consultar habitaciones, usuarios e indicadores.
+5. Para probar el registro, usar el código simulado `333777`.
+
+Si se modifica la semilla o se necesita reiniciar la demo, borrar únicamente la clave `penguin_mock_db_v1` del almacenamiento local del sitio y recargar. Esto elimina los cambios de esa demo.
+
+La cámara necesita permiso del navegador y un contexto seguro, como HTTPS o localhost. Se puede recorrer la aplicación con las credenciales de demo sin utilizar acceso facial.
+
+## Publicar como sitio estático
+
+- Comando de compilación: `npm run build`.
+- Directorio de salida: `dist`.
+- Configurar en el hosting una reescritura a `index.html` para las rutas de React Router.
+- Servir los archivos de `public/models` y los recursos de imágenes.
+
+El repositorio no incluye un archivo `public/_redirects`; la regla de navegación debe configurarse según el proveedor de hosting.
+
+## Estado y límites
+
+Prototipo de interfaz y experiencia de usuario. Las contraseñas y los datos de la demo permanecen accesibles desde el navegador; utilizar exclusivamente información ficticia y evitar capturas faciales de personas reales.
+
+Para convertirlo en un sistema operativo se necesitan API y base de datos reales, autenticación y autorización en servidor, protección de datos y pruebas de reservas concurrentes. Retirar la importación de `mockApi.js` por sí solo no implementa ese backend.
+
+La documentación describe el modo de demostración; no implica que la aplicación esté certificada como sistema de reservas ni que exista afiliación con la marca que inspira su estética.
+
+## Autor
+
+[Amehd Mendez](https://github.com/AmehdFM) · Desarrollo de aplicaciones e interfaces web.
